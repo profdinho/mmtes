@@ -34,3 +34,6 @@ build/
 
 # Logs
 *.log
+
+# Ignorar arquivos :Zone.Identifier
+**/*.Identifier
