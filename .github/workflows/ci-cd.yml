@@ -35,6 +35,9 @@ jobs:
 
       - name: Run Unit Tests
         run: mvn test
+      
+      - name: Verificar Dockerfile
+        run: ls -l ./Dockerfile
 
   deploy-staging:
     needs: build-and-test
