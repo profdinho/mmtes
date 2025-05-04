@@ -39,6 +39,9 @@ jobs:
       - name: Verificar Dockerfile
         run: ls -l ./Dockerfile
 
+      - name: Verificar arquivo JAR
+        run: ls -l ./target/*.jar
+
   deploy-staging:
     needs: build-and-test
     if: ${{ github.ref_name == 'main' }}
