@@ -1,4 +1,4 @@
-FROM maven:3.8.6-openjdk-17-slim
+FROM maven:latest
 WORKDIR /app
 ARG JAR_FILE=target/*.jar
 RUN mvn clean package
