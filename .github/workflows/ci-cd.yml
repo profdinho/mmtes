@@ -83,7 +83,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag ${{ secrets.DOCKER_USERNAME }}/mmtes:latest
+        run: docker build . --file Dockerfile --tag ${{ secrets.DOCKER_USERNAME }}/mmtes:$(date +%s)
 
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
