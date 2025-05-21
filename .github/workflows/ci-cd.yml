@@ -58,6 +58,12 @@ jobs:
       - name: Run Unit Tests
         run: mvn test
 
+      - name: Upload JAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mmtes-jar
+          path: ./target/mmtes.jar
+
       # - name: Publish to GitHub Packages Apache Maven
       #   run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
       #   env:
@@ -81,13 +87,14 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Verificar Dockerfile
-        run: ls -l ./Dockerfile
-
-      - name: Verificar arquivo JAR
-        run: ls -l ./target/*.jar
-        
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Download JAR Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mmtes-jar
+      
       - name: Build the Docker image
         run: docker build . --file Dockerfile --tag ${{ secrets.DOCKER_USERNAME }}/mmtes:$(date +%s)
 
