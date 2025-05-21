@@ -1,0 +1,10 @@
+server:
+  port: ${PORT:8080}
+  servlet:
+    contextPath: /api/mmtes
+
+spring:
+  application:
+    name: mmtes
+  profiles:
+    active: ${ENV:local}
