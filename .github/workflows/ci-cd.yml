@@ -94,6 +94,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: mmtes-jar
+          path: ./target
+          
+      - name: Verify JAR Artifact
+        run: ls -l ./target/*.jar
       
       - name: Build the Docker image
         run: docker build . --file Dockerfile --tag ${{ secrets.DOCKER_USERNAME }}/mmtes:$(date +%s)
