@@ -28,15 +28,8 @@ env:
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
 
-# env:
-#   ENVIRONMENT: 'develop'
-#   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-#   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-#   DOCKER_IMAGE: 'mmtes'
-#   DOCKER_TAG: 'latest'
-
 jobs:
-  build-and-test:
+  build-and-test-maven:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -47,8 +40,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
-          settings-path: ${{ github.workspace }} # location for the settings.xml file
+          cache: 'maven'
 
       - name: Cache Maven Dependencies
         uses: actions/cache@v4
@@ -63,6 +55,10 @@ jobs:
 
       - name: Run Unit Tests
         run: mvn test
+      
+      # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
+      - name: Update dependency graph
+        uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
 
       - name: Upload JAR Artifact
         uses: actions/upload-artifact@v4
@@ -70,19 +66,8 @@ jobs:
           name: mmtes-jar
           path: ./target/*.jar
 
-      # - name: Publish to GitHub Packages Apache Maven
-      #   run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
-      #   env:
-      #     GITHUB_TOKEN: ${{ github.token }}
-      
-      #- name: Verificar Dockerfile
-      #  run: ls -l ./Dockerfile
-
-      #- name: Verificar arquivo JAR
-      #  run: ls -l ./target/*.jar
-
   deploy-staging:
-    needs: build-and-test
+    needs: build-and-test-maven
     if: ${{ github.ref_name == 'main' }}
     runs-on: ubuntu-latest
     permissions:
@@ -104,9 +89,6 @@ jobs:
 
       - name: Verify JAR Artifact
         run: ls -l ./target/*.jar
-      
-      #- name: Build the Docker image
-      #  run: docker build . --file Dockerfile --tag ${{ secrets.DOCKER_USERNAME }}/mmtes:$(date +%s)
 
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
@@ -130,8 +112,6 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          # username: ${{ secrets.DOCKER_USERNAME }}
-          # password: ${{ secrets.DOCKER_PASSWORD }}
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
@@ -150,7 +130,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }} # ${{ secrets.DOCKER_USERNAME }}/mmtes:latest
+          tags: ${{ steps.meta.outputs.tags }}
           labels: main
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -170,17 +150,17 @@ jobs:
         # against the sigstore community Fulcio instance.
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
 
-      # - name: Login to Docker Hub
-      #   uses: docker/login-action@v2
-      #   with:
-      #     username: ${{ secrets.DOCKER_USERNAME }}
-      #     password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # - name: Build and Push Docker Image
-      #   uses: docker/build-push-action@v4
-      #   with:
-      #     context: .
-      #     file: ./Dockerfile
-      #     push: true
-      #     tags: ${{ secrets.DOCKER_USERNAME }}/mmtes:latest
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/mmtes:latest
           
