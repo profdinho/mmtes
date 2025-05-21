@@ -62,7 +62,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mmtes-jar
-          path: ./target/mmtes.jar
+          path: ./target/*.jar
 
       # - name: Publish to GitHub Packages Apache Maven
       #   run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
