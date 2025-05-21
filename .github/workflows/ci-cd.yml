@@ -22,6 +22,12 @@ on:
       - '**.yaml'
       - '**.properties'
 
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY: ghcr.io
+  # github.repository as <account>/<repo>
+  IMAGE_NAME: ${{ github.repository }}
+
 # env:
 #   ENVIRONMENT: 'develop'
 #   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -142,7 +148,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ secrets.DOCKER_USERNAME }}/mmtes:latest
+          tags: ${{ steps.meta.outputs.tags }} # ${{ secrets.DOCKER_USERNAME }}/mmtes:latest
           labels: main
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -171,7 +177,7 @@ jobs:
       # - name: Build and Push Docker Image
       #   uses: docker/build-push-action@v4
       #   with:
-      #   #  context: .
+      #     context: .
       #     file: ./Dockerfile
       #     push: true
       #     tags: ${{ secrets.DOCKER_USERNAME }}/mmtes:latest
