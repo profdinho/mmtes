@@ -14,6 +14,7 @@ public class CepService {
     RestTemplate restTemplate = new RestTemplate();
     public Endereco findAddress(String cep) {
         log.info("Entrou no método CepService.findAddress(cep)");
+        log.info("Aula de Métodos");
         return restTemplate.getForObject(URL_CEP.replace("{cep}", cep), Endereco.class);
     }
 }
