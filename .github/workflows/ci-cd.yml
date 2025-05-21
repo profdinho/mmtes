@@ -82,6 +82,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Verificar Dockerfile
+        run: ls -l ./Dockerfile
+
+      - name: Verificar arquivo JAR
+        run: ls -l ./target/*.jar
+        
       - name: Build the Docker image
         run: docker build . --file Dockerfile --tag ${{ secrets.DOCKER_USERNAME }}/mmtes:$(date +%s)
 
